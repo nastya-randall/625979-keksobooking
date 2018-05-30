@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Анастасия Свиридова](https://up.htmlacademy.ru/javascript/14/user/625979).
-* Наставник: [Алексей Юрченко].
+* Наставник: [Алексей Юрченко](https://up.htmlacademy.ru/javascript/14/user/487085).
 
 ---
 
