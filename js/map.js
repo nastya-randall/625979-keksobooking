@@ -71,9 +71,6 @@ var cardTemplate = document.querySelector('template')
     .content
     .querySelector('.map__card');
 
-var photosContainer = cardTemplate.querySelector('.popup__photos');
-var featuresList = cardTemplate.querySelector('.popup__features');
-
 var getRandomInRange = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
@@ -190,27 +187,26 @@ var insertPins = function () {
 
 insertPins();
 
-var createFeatures = function (array) {
-  while (featuresList.firstChild) {
-    featuresList.firstChild.remove();
+var insertFeatures = function (container, array) {
+  while (container.firstChild) {
+    container.firstChild.remove();
   }
   for (var i = 0; i < array.length; i++) {
     var featureElement = document.createElement('li');
     featureElement.classList.add('popup__feature');
     featureElement.classList.add('popup__feature--' + array[i]);
-    featuresList.appendChild(featureElement);
+    container.appendChild(featureElement);
   }
 };
 
-var insertPhotos = function (array) {
+var insertPhotos = function (container, template, array) {
+  container.children[0].remove();
   for (var i = 0; i < array.length; i++) {
-    var photoElement = photosContainer.children[0].cloneNode();
+    var photoElement = template.cloneNode();
     photoElement.src = array[i];
-    photosContainer.appendChild(photoElement);
+    container.appendChild(photoElement);
   }
-  photosContainer.children[0].remove();
 };
-
 
 var renderCard = function (item) {
   var cardElement = cardTemplate.cloneNode(true);
@@ -222,13 +218,15 @@ var renderCard = function (item) {
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после  ' + item.offer.checkin + ', выезд до ' + item.offer.checkout;
   cardElement.querySelector('.popup__description').textContent = item.offer.description;
 
-  createFeatures(item.offer.features);
-  insertPhotos(item.offer.photos);
+  var featuresContainer = cardElement.querySelector('.popup__features');
+  insertFeatures(featuresContainer, item.offer.features);
+
+  var photosContainer = cardElement.querySelector('.popup__photos');
+  var photoTemplate = cardElement.querySelector('.popup__photo');
+  insertPhotos(photosContainer, photoTemplate, item.offer.photos);
 
   return cardElement;
 };
-
-renderCard(ads[0]);
 
 // вставка карточки на страницу
 
