@@ -200,7 +200,7 @@ var insertFeatures = function (container, array) {
 };
 
 var insertPhotos = function (container, template, array) {
-  container.children[0].remove();
+  template.remove();
   for (var i = 0; i < array.length; i++) {
     var photoElement = template.cloneNode();
     photoElement.src = array[i];
@@ -231,9 +231,7 @@ var renderCard = function (item) {
 // вставка карточки на страницу
 
 var insertCards = function () {
-  var fragment = document.createDocumentFragment();
-  fragment.appendChild(renderCard(ads[0]));
-  map.insertBefore(fragment, filters);
+  map.insertBefore(renderCard(ads[0]), filters);
 };
 
 insertCards();
