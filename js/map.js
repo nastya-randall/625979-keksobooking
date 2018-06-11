@@ -1,6 +1,5 @@
 'use strict';
 
-var avatars = ['01', '02', '03', '04', '05', '06', '07', '08'];
 var titles = [
   'Большая уютная квартира',
   'Маленькая неуютная квартира',
@@ -17,6 +16,13 @@ var types = [
   'house',
   'bungalo'
 ];
+
+var typeMap = {
+  flat: 'Квартира',
+  bungalo: 'Бунгало',
+  house: 'Дом',
+  palace: 'Дворец'
+};
 
 var checkinTime = [
   '12:00',
@@ -65,6 +71,9 @@ var cardTemplate = document.querySelector('template')
     .content
     .querySelector('.map__card');
 
+var photosContainer = cardTemplate.querySelector('.popup__photos');
+var featuresList = cardTemplate.querySelector('.popup__features');
+
 var getRandomInRange = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
@@ -79,7 +88,8 @@ var getRandom = function (array) {
 
 // Fisher-Yates Shuffle
 
-var shuffleArray = function (array) {
+var shuffleArray = function (inputArray) {
+  var array = inputArray.slice();
   var currentIndex = array.length;
   var temporaryValue;
   var randomIndex;
@@ -104,7 +114,7 @@ function getRandomShuffledArray(arr) {
 
 // получение координат меток
 
-var renderLocation = function () {
+var generateLocation = function () {
   for (var i = 0; i < ADS_NUMBER; i++) {
     var location = {
       x: getRandomInRange(MIN_X, MAX_X),
@@ -115,17 +125,16 @@ var renderLocation = function () {
   return locations;
 };
 
-renderLocation();
+generateLocation();
 
 // герерация объявлений
 
-var renderAds = function () {
+var generateAds = function () {
   for (var i = 0; i < ADS_NUMBER; i++) {
-    var avatarRand = getRandom(avatars);
     var titleRand = getRandom(titles);
     var ad = {
       author: {
-        avatar: 'img/avatars/user' + avatars[avatarRand] + '.png'
+        avatar: 'img/avatars/user0' + (i + 1) + '.png'
       },
       offer: {
         title: titles[titleRand],
@@ -145,29 +154,17 @@ var renderAds = function () {
         y: locations[i].y
       }
     };
-    avatars.splice(avatarRand, 1);
     titles.splice(titleRand, 1);
     ads.push(ad);
   }
 };
 
-renderAds();
-console.log(ads);
+generateAds();
 
 // определение типа жилья
 
 var getType = function (item) {
-  var typeText;
-  if (item.offer.type === 'flat') {
-    return 'Квартира';
-  } else if (item.offer.type === 'bungalo') {
-    return 'Бунгало';
-  } else if (item.offer.type === 'house') {
-    return 'Дом';
-  } else if (item.offer.type === 'palace') {
-    return 'Дворец';
-  }
-  return typeText;
+  return typeMap[item.offer.type] || item.offer.type;
 };
 
 // создание метки
@@ -183,7 +180,7 @@ var renderPin = function (item) {
 
 // вставка меток на страницу
 
-var addPins = function () {
+var insertPins = function () {
   var fragment = document.createDocumentFragment();
   for (var i = 0; i < ADS_NUMBER; i++) {
     fragment.appendChild(renderPin(ads[i]));
@@ -191,34 +188,29 @@ var addPins = function () {
   pins.appendChild(fragment);
 };
 
-addPins();
+insertPins();
 
-// жалкие мои попытки хоть что.то сделать с features
-
-var featuresList = cardTemplate.querySelector('.popup__features');
-var renderFeatures = function (item) {
-  for (var i = 0; i < featuresList.children.length; i++) {
-    if (!featuresList.children[i].classList.contains(item.features)) {
-      featuresList.removeChild(featuresList.childNodes[i]);
-    }
+var createFeatures = function (array) {
+  while (featuresList.firstChild) {
+    featuresList.firstChild.remove();
   }
-  return featuresList.children;
+  for (var i = 0; i < array.length; i++) {
+    var featureElement = document.createElement('li');
+    featureElement.classList.add('popup__feature');
+    featureElement.classList.add('popup__feature--' + array[i]);
+    featuresList.appendChild(featureElement);
+  }
 };
 
-renderFeatures(ads[0]);
-console.log(featuresList.children);
-
-// и такие же жалкие заставить photos работать, но ниче не работает
-
-var photosContainer = cardTemplate.querySelector('.popup__photos');
-
-var renderPhotos = function (item) {
-  var photoElement = cardTemplate.querySelector('.popup__photo').cloneNode;
-  photoElement.src = item.offer.photos;
-  return photoElement;
+var insertPhotos = function (array) {
+  for (var i = 0; i < array.length; i++) {
+    var photoElement = photosContainer.children[0].cloneNode();
+    photoElement.src = array[i];
+    photosContainer.appendChild(photoElement);
+  }
+  photosContainer.children[0].remove();
 };
 
-// герерация карточки объявления
 
 var renderCard = function (item) {
   var cardElement = cardTemplate.cloneNode(true);
@@ -229,19 +221,23 @@ var renderCard = function (item) {
   cardElement.querySelector('.popup__text--capacity').textContent = item.offer.rooms + ' комнаты для ' + item.offer.guests + ' гостей';
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после  ' + item.offer.checkin + ', выезд до ' + item.offer.checkout;
   cardElement.querySelector('.popup__description').textContent = item.offer.description;
-  renderFeatures(item);
+
+  createFeatures(item.offer.features);
+  insertPhotos(item.offer.photos);
 
   return cardElement;
 };
 
+renderCard(ads[0]);
+
 // вставка карточки на страницу
 
-var addCards = function () {
+var insertCards = function () {
   var fragment = document.createDocumentFragment();
   fragment.appendChild(renderCard(ads[0]));
   map.insertBefore(fragment, filters);
 };
 
-addCards();
+insertCards();
 
 map.classList.remove('map--faded');
