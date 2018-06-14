@@ -55,13 +55,16 @@ var MIN_ROOMS = 1;
 var MAX_ROOMS = 5;
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 70;
+var USER_PIN_WIDTH = 65;
+var USER_PIN_HEIGHT = 81;
 var ads = [];
 var ADS_NUMBER = 8;
 var locations = [];
+var pins = [];
 
 var map = document.querySelector('.map');
 
-var pins = document.querySelector('.map__pins');
+var pinsContainer = document.querySelector('.map__pins');
 var filters = document.querySelector('.map__filters-container');
 var pinTemplate = document.querySelector('template')
     .content
@@ -172,6 +175,7 @@ var renderPin = function (item) {
   pinElement.style.top = item.location.y - PIN_HEIGHT + 'px';
   pinElement.querySelector('img').src = item.author.avatar;
   pinElement.querySelector('img').alt = item.offer.title;
+  pins.push(pinElement);
   return pinElement;
 };
 
@@ -182,10 +186,8 @@ var insertPins = function () {
   for (var i = 0; i < ADS_NUMBER; i++) {
     fragment.appendChild(renderPin(ads[i]));
   }
-  pins.appendChild(fragment);
+  pinsContainer.appendChild(fragment);
 };
-
-insertPins();
 
 var insertFeatures = function (container, array) {
   while (container.firstChild) {
@@ -230,10 +232,61 @@ var renderCard = function (item) {
 
 // вставка карточки на страницу
 
-var insertCards = function () {
-  map.insertBefore(renderCard(ads[0]), filters);
+var insertCards = function (index) {
+  map.insertBefore(renderCard(ads[index]), filters);
 };
 
-insertCards();
+//////////
 
-map.classList.remove('map--faded');
+
+//for (var i = 0; i < pins.length; i++) {
+//  pins[i].addEventListener('click', function () {
+//    insertCards[i];
+//  })
+//}
+
+
+/////////////
+
+
+var adForm = document.querySelector('.ad-form');
+var adFieldsets = adForm.querySelectorAll('fieldset');
+var userPin = map.querySelector('.map__pin--main');
+var mapFilters = map.querySelectorAll('[id^="housing-"]');
+
+var disable = function (value, form) {
+  for (var i = 0; i < form.length; i++) {
+    form[i].disabled = value;
+  }
+};
+
+disable(true, mapFilters);
+disable(true, adFieldsets);
+
+var getUserPinAddress = function () {
+  userPin = {
+    location: {
+      x: Math.floor(parseInt(userPin.style.left, 10) + USER_PIN_WIDTH / 2),
+      y: Math.floor(parseInt(userPin.style.top, 10) + USER_PIN_HEIGHT)
+    }
+  };
+
+  adForm.querySelector('#address').value = userPin.location.x + ', ' + userPin.location.y;
+};
+
+var activateSite = function () {
+  map.classList.remove('map--faded');
+  disable(false, mapFilters);
+  disable(false, adFieldsets);
+  adForm.classList.remove('ad-form--disabled');
+  getUserPinAddress();
+  insertPins();
+  for (var i = 0; i < pins.length; i++) {
+  pins[i].addEventListener('click', function () {
+    insertCards(i);
+  });
+}
+
+};
+
+userPin.addEventListener('mouseup', activateSite);
