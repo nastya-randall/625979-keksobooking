@@ -60,7 +60,6 @@ var USER_PIN_HEIGHT = 81;
 var ads = [];
 var ADS_NUMBER = 8;
 var locations = [];
-var pins = [];
 
 var map = document.querySelector('.map');
 
@@ -175,7 +174,6 @@ var renderPin = function (item) {
   pinElement.style.top = item.location.y - PIN_HEIGHT + 'px';
   pinElement.querySelector('img').src = item.author.avatar;
   pinElement.querySelector('img').alt = item.offer.title;
-  pins.push(pinElement);
   return pinElement;
 };
 
@@ -212,6 +210,7 @@ var insertPhotos = function (container, template, array) {
 
 var renderCard = function (item) {
   var cardElement = cardTemplate.cloneNode(true);
+  cardElement.querySelector('.popup__avatar').src = item.author.avatar;
   cardElement.querySelector('.popup__title').textContent = item.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = item.offer.address;
   cardElement.querySelector('.popup__text--price').textContent = item.offer.price + '₽/ночь';
@@ -236,23 +235,14 @@ var insertCards = function (index) {
   map.insertBefore(renderCard(ads[index]), filters);
 };
 
-//////////
-
-
-//for (var i = 0; i < pins.length; i++) {
-//  pins[i].addEventListener('click', function () {
-//    insertCards[i];
-//  })
-//}
-
-
-/////////////
-
+// сценарии взаимодействия пользователя с сайтом
 
 var adForm = document.querySelector('.ad-form');
 var adFieldsets = adForm.querySelectorAll('fieldset');
 var userPin = map.querySelector('.map__pin--main');
 var mapFilters = map.querySelectorAll('[id^="housing-"]');
+
+// функция деактивации полей форм
 
 var disable = function (value, form) {
   for (var i = 0; i < form.length; i++) {
@@ -260,8 +250,12 @@ var disable = function (value, form) {
   }
 };
 
+// по умолчанию поля форм неактивны
+
 disable(true, mapFilters);
 disable(true, adFieldsets);
+
+// функция получения координат пина пользователя и запись их в поле адреса
 
 var getUserPinAddress = function () {
   userPin = {
@@ -274,6 +268,8 @@ var getUserPinAddress = function () {
   adForm.querySelector('#address').value = userPin.location.x + ', ' + userPin.location.y;
 };
 
+// функция ввода страницы в активное состояние
+
 var activateSite = function () {
   map.classList.remove('map--faded');
   disable(false, mapFilters);
@@ -281,12 +277,26 @@ var activateSite = function () {
   adForm.classList.remove('ad-form--disabled');
   getUserPinAddress();
   insertPins();
-  for (var i = 0; i < pins.length; i++) {
-  pins[i].addEventListener('click', function () {
-    insertCards(i);
-  });
-}
+  var pinsCol = map.querySelectorAll('.map__pin');
+  onPinClick(pinsCol);
+};
 
+// обработчик события нажатия на пин
+
+var onPinClick = function (col) {
+  var pins = [];
+  var currentIndex;
+  for (var i = 1; i < col.length; i++) {
+    pins.push(col[i]);
+    col[i].addEventListener('click', function (evt) {
+      currentIndex = pins.indexOf(evt.target);
+      insertCards(currentIndex);
+      map.querySelector('.popup__close').addEventListener('click', function () {
+        var popup = map.querySelector('.popup');
+        map.removeChild(popup);
+      });
+    });
+  }
 };
 
 userPin.addEventListener('mouseup', activateSite);
