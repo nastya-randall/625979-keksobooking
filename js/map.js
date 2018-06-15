@@ -333,6 +333,26 @@ selectType.addEventListener('change', function () {
   inputPrice.setAttribute('min', getMinPrice());
 });
 
+// Время заезда и выезда
+var selectTimein = adForm.querySelector('#timein');
+var selectTimeout = adForm.querySelector('#timeout');
+
+var syncTimein = function () {
+  selectTimeout.value = selectTimein.value;
+};
+
+var syncTimeout = function () {
+  selectTimein.value = selectTimeout.value;
+};
+
+var onTimeChange = function () {
+  selectTimein.addEventListener('change', syncTimein);
+  selectTimeout.addEventListener('change', syncTimeout);
+};
+
+onTimeChange();
+
+
 
 var resetButton = adForm.querySelector('.ad-form__reset');
 resetButton.addEventListener('click', function () {
