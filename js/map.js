@@ -240,6 +240,7 @@ var insertCards = function (index) {
 var adForm = document.querySelector('.ad-form');
 var adFieldsets = adForm.querySelectorAll('fieldset');
 var userPin = map.querySelector('.map__pin--main');
+
 var mapFilters = map.querySelectorAll('[id^="housing-"]');
 
 // функция деактивации полей форм
@@ -258,6 +259,7 @@ disable(true, adFieldsets);
 // функция получения координат пина пользователя и запись их в поле адреса
 
 var getUserPinAddress = function () {
+  userPin = map.querySelector('.map__pin--main');
   userPin = {
     location: {
       x: Math.floor(parseInt(userPin.style.left, 10) + USER_PIN_WIDTH / 2),
@@ -275,28 +277,49 @@ var activateSite = function () {
   disable(false, mapFilters);
   disable(false, adFieldsets);
   adForm.classList.remove('ad-form--disabled');
-  getUserPinAddress();
   insertPins();
+  getUserPinAddress();
   var pinsCol = map.querySelectorAll('.map__pin');
   onPinClick(pinsCol);
 };
 
 // обработчик события нажатия на пин
 
+
+
 var onPinClick = function (col) {
   var pins = [];
   var currentIndex;
   for (var i = 1; i < col.length; i++) {
     pins.push(col[i]);
+    col[i].addEventListener('mousedown', function () {
+      var popup = map.querySelector('.popup');
+      if (popup !== null) {
+        map.removeChild(popup);
+      }
+    });
     col[i].addEventListener('click', function (evt) {
       currentIndex = pins.indexOf(evt.target);
       insertCards(currentIndex);
       map.querySelector('.popup__close').addEventListener('click', function () {
-        var popup = map.querySelector('.popup');
-        map.removeChild(popup);
+        map.removeChild(map.querySelector('.popup'));
       });
     });
   }
 };
+
+// валидация форм
+
+var resetButton = adForm.querySelector('.ad-form__reset');
+resetButton.addEventListener('click', function () {
+  map.classList.add('map--faded');
+  adForm.classList.add('ad-form--disabled');
+  disable(true, mapFilters);
+  disable(true, adFieldsets);
+  var pinsCol = map.querySelectorAll('.map__pin');
+  for (var i = 1; i < pinsCol.length; i++) {
+    pinsContainer.removeChild(pinsCol[i]);
+  }
+});
 
 userPin.addEventListener('mouseup', activateSite);
