@@ -283,6 +283,8 @@ var activateSite = function () {
   onPinClick(pinsCol);
 };
 
+userPin.addEventListener('mouseup', activateSite);
+
 // обработчик события нажатия на пин
 
 
@@ -308,7 +310,29 @@ var onPinClick = function (col) {
   }
 };
 
-// валидация форм
+// ВАЛИДАЦИЯ ФОРМ
+
+// настройка типа жилья и минимальной цены
+
+var priceMap = {
+  bungalo: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
+};
+
+var selectType = adForm.querySelector('#type');
+var inputPrice = adForm.querySelector('#price');
+
+var getMinPrice = function () {
+  return priceMap[selectType.value];
+};
+
+selectType.addEventListener('change', function () {
+  inputPrice.placeholder = getMinPrice();
+  inputPrice.setAttribute('min', getMinPrice());
+});
+
 
 var resetButton = adForm.querySelector('.ad-form__reset');
 resetButton.addEventListener('click', function () {
@@ -322,4 +346,3 @@ resetButton.addEventListener('click', function () {
   }
 });
 
-userPin.addEventListener('mouseup', activateSite);
