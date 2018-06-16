@@ -334,6 +334,7 @@ selectType.addEventListener('change', function () {
 });
 
 // Время заезда и выезда
+
 var selectTimein = adForm.querySelector('#timein');
 var selectTimeout = adForm.querySelector('#timeout');
 
@@ -352,7 +353,64 @@ var onTimeChange = function () {
 
 onTimeChange();
 
+// Количество комнат и гстей
 
+var selectRoom = adForm.querySelector('#room_number');
+var selectCapacity = adForm.querySelector('#capacity');
+
+var disableOptions = function (index) {
+  for (var i = 0; i < selectCapacity.children.length; i++) {
+    selectCapacity.children[i].disabled = true;
+  }
+
+  selectCapacity.selectedIndex = index;
+};
+
+var enableOptions = function (min, max) {
+  for (var i = min; i <= max; i++) {
+    selectCapacity.children[i].disabled = false;
+  }
+};
+
+var onSelectRoomChange = function () {
+  selectRoom.addEventListener('change', function (evt) {
+    if (evt.target.selectedIndex === 3) {
+      disableOptions(3);
+      enableOptions(3, 3);
+    }
+
+    for (var i = 0; i < selectRoom.children.length - 1; i++) {
+      if (evt.target.selectedIndex === i) {
+        disableOptions(i);
+        enableOptions(0, i);
+      }
+    }
+  });
+};
+
+onSelectRoomChange();
+
+// проверка на валидность полей ввода
+
+var isInvalid = function (input) {
+  if (input.checkValidity() === false) {
+    input.style.boxShadow = '0 0 2px 2px #ff6547';
+  }
+};
+
+var onInputBlur = function (input) {
+  input.addEventListener('blur', function () {
+    input.style.boxShadow = 'none';
+  });
+};
+
+adForm.querySelector('.ad-form__submit').addEventListener('click', function () {
+  isInvalid(adForm.querySelector('#title'));
+  isInvalid(adForm.querySelector('#price'));
+});
+
+onInputBlur(adForm.querySelector('#title'));
+onInputBlur(adForm.querySelector('#price'));
 
 var resetButton = adForm.querySelector('.ad-form__reset');
 resetButton.addEventListener('click', function () {
