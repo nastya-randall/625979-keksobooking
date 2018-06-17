@@ -177,24 +177,18 @@ var renderPin = function (item) {
   pinElement.addEventListener('click', function () {
     openPopup(item);
   });
-  pinElement.addEventListener('mousedown', switchPopup);
   return pinElement;
 };
 
 var openPopup = function (item) {
-  insertCards(item);
-  map.querySelector('.popup__close').addEventListener('click', function () {
-    map.removeChild(map.querySelector('.popup'));
-  });
-};
-
-// Закрытие попапа при нажатии на другой пин
-
-var switchPopup = function () {
   var popup = map.querySelector('.popup');
   if (popup !== null) {
     map.removeChild(popup);
   }
+  insertCards(item);
+  map.querySelector('.popup__close').addEventListener('click', function () {
+    map.removeChild(map.querySelector('.popup'));
+  });
 };
 
 // вставка меток на страницу
