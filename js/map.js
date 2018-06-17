@@ -174,7 +174,27 @@ var renderPin = function (item) {
   pinElement.style.top = item.location.y - PIN_HEIGHT + 'px';
   pinElement.querySelector('img').src = item.author.avatar;
   pinElement.querySelector('img').alt = item.offer.title;
+  pinElement.addEventListener('click', function () {
+    openPopup(item);
+  });
+  pinElement.addEventListener('mousedown', switchPopup);
   return pinElement;
+};
+
+var openPopup = function (item) {
+  insertCards(item);
+  map.querySelector('.popup__close').addEventListener('click', function () {
+    map.removeChild(map.querySelector('.popup'));
+  });
+};
+
+// Закрытие попапа при нажатии на другой пин
+
+var switchPopup = function () {
+  var popup = map.querySelector('.popup');
+  if (popup !== null) {
+    map.removeChild(popup);
+  }
 };
 
 // вставка меток на страницу
@@ -231,8 +251,8 @@ var renderCard = function (item) {
 
 // вставка карточки на страницу
 
-var insertCards = function (index) {
-  map.insertBefore(renderCard(ads[index]), filters);
+var insertCards = function (item) {
+  map.insertBefore(renderCard(item), filters);
 };
 
 // сценарии взаимодействия пользователя с сайтом
@@ -279,31 +299,6 @@ var activateSite = function () {
   adForm.classList.remove('ad-form--disabled');
   insertPins();
   getUserPinAddress();
-  var pinsCol = map.querySelectorAll('.map__pin');
-  onPinClick(pinsCol);
 };
 
 userPin.addEventListener('mouseup', activateSite);
-
-// обработчик события нажатия на пин
-
-var onPinClick = function (col) {
-  var pins = [];
-  var currentIndex;
-  for (var i = 1; i < col.length; i++) {
-    pins.push(col[i]);
-    col[i].addEventListener('mousedown', function () {
-      var popup = map.querySelector('.popup');
-      if (popup !== null) {
-        map.removeChild(popup);
-      }
-    });
-    col[i].addEventListener('click', function (evt) {
-      currentIndex = pins.indexOf(evt.target);
-      insertCards(currentIndex);
-      map.querySelector('.popup__close').addEventListener('click', function () {
-        map.removeChild(map.querySelector('.popup'));
-      });
-    });
-  }
-};
