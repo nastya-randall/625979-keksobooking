@@ -444,6 +444,7 @@ resetButton.addEventListener('click', function () {
 
       mainPin.style.top = getValidCoords(mainPin.offsetTop - shift.y, MIN_Y - USER_PIN_HEIGHT, MAX_Y) + 'px';
       mainPin.style.left = getValidCoords(mainPin.offsetLeft - shift.x, 0, map.offsetWidth - USER_PIN_WIDTH) + 'px';
+      getUserPinAddress();
 
     };
 
