@@ -45,8 +45,8 @@ var photos = [
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
 
-var MIN_X = 300;
-var MAX_X = 900;
+var DEFAULT_X = 570;
+var DEFAULT_Y = 375;
 var MIN_Y = 130;
 var MAX_Y = 630;
 var MIN_PRICE = 1000;
@@ -116,7 +116,7 @@ function getRandomShuffledArray(arr) {
 var generateLocation = function () {
   for (var i = 0; i < ADS_NUMBER; i++) {
     var location = {
-      x: getRandomInRange(MIN_X, MAX_X),
+      x: getRandomInRange(map.offsetLeft, map.offsetWidth),
       y: getRandomInRange(MIN_Y, MAX_Y)
     };
     locations.push(location);
@@ -272,7 +272,7 @@ disable(true, adFieldsets);
 
 // функция получения координат пина пользователя и запись их в поле адреса
 
-var getUserPinAddress = function () {
+var updateUserLocation = function () {
   userPin = map.querySelector('.map__pin--main');
   userPin = {
     location: {
@@ -292,7 +292,7 @@ var activateSite = function () {
   disable(false, adFieldsets);
   adForm.classList.remove('ad-form--disabled');
   insertPins();
-  getUserPinAddress();
+  updateUserLocation();
 };
 
 userPin.addEventListener('mouseup', activateSite);
@@ -399,6 +399,8 @@ adForm.querySelector('.ad-form__submit').addEventListener('click', function () {
 onInputBlur(adForm.querySelector('#title'));
 onInputBlur(adForm.querySelector('#price'));
 
+// reset the page //
+
 var resetButton = adForm.querySelector('.ad-form__reset');
 resetButton.addEventListener('click', function () {
   map.classList.add('map--faded');
@@ -409,5 +411,58 @@ resetButton.addEventListener('click', function () {
   for (var i = 1; i < pinsCol.length; i++) {
     pinsContainer.removeChild(pinsCol[i]);
   }
+  map.querySelector('.map__pin--main').style.left = DEFAULT_X + 'px';
+  map.querySelector('.map__pin--main').style.top = DEFAULT_Y + 'px';
+  updateUserLocation();
 });
+
+// DRAGGING THE USER PIN
+
+(function () {
+  var mainPin = map.querySelector('.map__pin--main');
+
+  mainPin.addEventListener('mousedown', function (evt) {
+    evt.preventDefault();
+
+    var startCoords = {
+      x: evt.clientX,
+      y: evt.clientY
+    };
+
+    var clamp = function (num, min, max) {
+      return Math.min(Math.max(num, min), max);
+    };
+
+    var onMouseMove = function (moveEvt) {
+      moveEvt.preventDefault();
+
+      var shift = {
+        x: startCoords.x - moveEvt.clientX,
+        y: startCoords.y - moveEvt.clientY
+      };
+
+      startCoords = {
+        x: moveEvt.clientX,
+        y: moveEvt.clientY
+      };
+
+      mainPin.style.top = clamp(mainPin.offsetTop - shift.y, MIN_Y - USER_PIN_HEIGHT, MAX_Y) + 'px';
+      mainPin.style.left = clamp(mainPin.offsetLeft - shift.x, 0, map.offsetWidth - USER_PIN_WIDTH) + 'px';
+      updateUserLocation();
+
+    };
+
+    var onMouseUp = function (upEvt) {
+      upEvt.preventDefault();
+
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+
+})();
 
