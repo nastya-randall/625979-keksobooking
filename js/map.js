@@ -272,7 +272,7 @@ disable(true, adFieldsets);
 
 // функция получения координат пина пользователя и запись их в поле адреса
 
-var getUserPinAddress = function () {
+var updateUserLocation = function () {
   userPin = map.querySelector('.map__pin--main');
   userPin = {
     location: {
@@ -292,7 +292,7 @@ var activateSite = function () {
   disable(false, adFieldsets);
   adForm.classList.remove('ad-form--disabled');
   insertPins();
-  getUserPinAddress();
+  updateUserLocation();
 };
 
 userPin.addEventListener('mouseup', activateSite);
@@ -413,7 +413,7 @@ resetButton.addEventListener('click', function () {
   }
   map.querySelector('.map__pin--main').style.left = DEFAULT_X + 'px';
   map.querySelector('.map__pin--main').style.top = DEFAULT_Y + 'px';
-  getUserPinAddress();
+  updateUserLocation();
 });
 
 // DRAGGING THE USER PIN
@@ -429,6 +429,10 @@ resetButton.addEventListener('click', function () {
       y: evt.clientY
     };
 
+    var clamp = function (num, min, max) {
+      return Math.min(Math.max(num, min), max);
+    };
+
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
 
@@ -442,9 +446,9 @@ resetButton.addEventListener('click', function () {
         y: moveEvt.clientY
       };
 
-      mainPin.style.top = getValidCoords(mainPin.offsetTop - shift.y, MIN_Y - USER_PIN_HEIGHT, MAX_Y) + 'px';
-      mainPin.style.left = getValidCoords(mainPin.offsetLeft - shift.x, 0, map.offsetWidth - USER_PIN_WIDTH) + 'px';
-      getUserPinAddress();
+      mainPin.style.top = clamp(mainPin.offsetTop - shift.y, MIN_Y - USER_PIN_HEIGHT, MAX_Y) + 'px';
+      mainPin.style.left = clamp(mainPin.offsetLeft - shift.x, 0, map.offsetWidth - USER_PIN_WIDTH) + 'px';
+      updateUserLocation();
 
     };
 
@@ -460,8 +464,5 @@ resetButton.addEventListener('click', function () {
     document.addEventListener('mouseup', onMouseUp);
   });
 
-  var getValidCoords = function (num, min, max) {
-    return Math.min(Math.max(num, min), max);
-  };
 })();
 
