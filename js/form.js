@@ -13,8 +13,8 @@
 
   // по умолчанию поля форм неактивны
 
-  window.disable(true, mapFilters);
-  window.disable(true, adFieldsets);
+  window.utils.disable(true, mapFilters);
+  window.utils.disable(true, adFieldsets);
 
   // ВАЛИДАЦИЯ ФОРМ
 
@@ -124,8 +124,8 @@
   resetButton.addEventListener('click', function () {
     map.classList.add('map--faded');
     adForm.classList.add('ad-form--disabled');
-    window.disable(true, mapFilters);
-    window.disable(true, adFieldsets);
+    window.utils.disable(true, mapFilters);
+    window.utils.disable(true, adFieldsets);
     var pinsCol = map.querySelectorAll('.map__pin');
     for (var i = 1; i < pinsCol.length; i++) {
       pinsContainer.removeChild(pinsCol[i]);

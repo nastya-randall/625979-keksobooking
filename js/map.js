@@ -68,8 +68,8 @@ var insertCards = function (item) {
 
 var activateSite = function () {
   map.classList.remove('map--faded');
-  window.disable(false, mapFilters);
-  window.disable(false, adFieldsets);
+  window.utils.disable(false, mapFilters);
+  window.utils.disable(false, adFieldsets);
   adForm.classList.remove('ad-form--disabled');
   insertPins();
   window.updateUserLocation();

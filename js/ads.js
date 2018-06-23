@@ -56,51 +56,14 @@
   var MAX_Y = 630;
   var map = document.querySelector('.map');
 
-  var getRandom = function (array) {
-    return Math.floor(Math.random() * array.length);
-  };
-
-  var getRandomInRange = function (min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
-
-  var getRandomArrayValue = function (array) {
-    return array[Math.floor(Math.random() * array.length)];
-  };
-
-  // Fisher-Yates Shuffle
-
-  var shuffleArray = function (inputArray) {
-    var array = inputArray.slice();
-    var currentIndex = array.length;
-    var temporaryValue;
-    var randomIndex;
-    // While there remain elements to shuffle...
-    while (currentIndex !== 0) {
-      // Pick a remaining element...
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex -= 1;
-      // And swap it with the current element.
-      temporaryValue = array[currentIndex];
-      array[currentIndex] = array[randomIndex];
-      array[randomIndex] = temporaryValue;
-    }
-    return array;
-  };
-
-  function getRandomShuffledArray(arr) {
-    shuffleArray(arr);
-    var counter = Math.floor(Math.random() * arr.length);
-    return arr.slice(counter, arr.length);
-  }
 
   // получение координат меток
 
   var generateLocation = function () {
     for (var i = 0; i < ADS_NUMBER; i++) {
       var location = {
-        x: getRandomInRange(map.offsetLeft, map.offsetWidth),
-        y: getRandomInRange(MIN_Y, MAX_Y)
+        x: window.utils.getRandomInRange(map.offsetLeft, map.offsetWidth),
+        y: window.utils.getRandomInRange(MIN_Y, MAX_Y)
       };
       locations.push(location);
     }
@@ -112,7 +75,7 @@
 
   var generateAds = function () {
     for (var i = 0; i < ADS_NUMBER; i++) {
-      var titleRand = getRandom(titles);
+      var titleRand = window.utils.getRandom(titles);
       var ad = {
         author: {
           avatar: 'img/avatars/user0' + (i + 1) + '.png'
@@ -120,15 +83,15 @@
         offer: {
           title: titles[titleRand],
           address: locations[i].x + ', ' + locations[i].y,
-          price: getRandomInRange(MIN_PRICE, MAX_PRICE),
-          type: getRandomArrayValue(types),
-          rooms: getRandomInRange(MIN_ROOMS, MAX_ROOMS),
-          guests: getRandomInRange(2, MAX_ROOMS),
-          checkin: getRandomArrayValue(checkinTime),
-          checkout: getRandomArrayValue(checkinTime),
-          features: getRandomShuffledArray(features),
+          price: window.utils.getRandomInRange(MIN_PRICE, MAX_PRICE),
+          type: window.utils.getRandomArrayValue(types),
+          rooms: window.utils.getRandomInRange(MIN_ROOMS, MAX_ROOMS),
+          guests: window.utils.getRandomInRange(2, MAX_ROOMS),
+          checkin: window.utils.getRandomArrayValue(checkinTime),
+          checkout: window.utils.getRandomArrayValue(checkinTime),
+          features: window.utils.getRandomShuffledArray(features),
           description: '',
-          photos: shuffleArray(photos)
+          photos: window.utils.shuffleArray(photos)
         },
         location: {
           x: locations[i].x,
