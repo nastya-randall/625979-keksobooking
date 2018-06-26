@@ -20,6 +20,7 @@
     return typeMap[item.offer.type] || item.offer.type;
   };
 
+
   var insertFeatures = function (container, array) {
     while (container.firstChild) {
       container.firstChild.remove();

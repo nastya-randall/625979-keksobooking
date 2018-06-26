@@ -10,6 +10,7 @@
   var pinsContainer = document.querySelector('.map__pins');
 
   var mapFilters = map.querySelectorAll('[id^="housing-"]');
+  var successPopup = document.querySelector('.success');
 
   // по умолчанию поля форм неактивны
 
@@ -96,6 +97,60 @@
 
   onSelectRoomChange();
 
+  var deactivateSite = function () {
+    map.classList.add('map--faded');
+    adForm.reset();
+    adForm.classList.add('ad-form--disabled');
+    window.utils.disable(true, mapFilters);
+    window.utils.disable(true, adFieldsets);
+    var pinsCol = map.querySelectorAll('.map__pin');
+    for (var i = 1; i < pinsCol.length; i++) {
+      pinsContainer.removeChild(pinsCol[i]);
+    }
+    map.querySelector('.map__pin--main').style.left = DEFAULT_X + 'px';
+    map.querySelector('.map__pin--main').style.top = DEFAULT_Y + 'px';
+    window.updateUserLocation();
+    window.scrollTo(0, 0);
+  };
+
+  var closePopup = function () {
+    successPopup.classList.add('hidden');
+  };
+
+  var onPopupEscPress = function (evt) {
+    window.utils.isEscEvent(evt, closePopup);
+  };
+
+
+  var onLoad = function () {
+    deactivateSite();
+    successPopup.classList.remove('hidden');
+    document.addEventListener('keydown', onPopupEscPress);
+  };
+
+  var onError = function (errorMessage) {
+    var node = document.createElement('div');
+    node.style.color = '#ff6d51';
+    node.style.position = 'absolute';
+    node.style.bottom = 0;
+    node.style.left = '45%';
+    node.style.fontSize = '22px';
+
+    node.textContent = errorMessage;
+    adForm.insertAdjacentElement('beforeend', node);
+
+    setTimeout(function () {
+      adForm.removeChild(node);
+    }, 5000);
+  };
+
+  adForm.addEventListener('submit', function (evt) {
+    window.backend.save(new FormData(adForm), onLoad, onError);
+    evt.preventDefault();
+  });
+
+  successPopup.addEventListener('click', closePopup);
+
   // проверка на валидность полей ввода
 
   var isInvalid = function (input) {
@@ -120,18 +175,7 @@
 
   // reset the page //
 
+
   var resetButton = adForm.querySelector('.ad-form__reset');
-  resetButton.addEventListener('click', function () {
-    map.classList.add('map--faded');
-    adForm.classList.add('ad-form--disabled');
-    window.utils.disable(true, mapFilters);
-    window.utils.disable(true, adFieldsets);
-    var pinsCol = map.querySelectorAll('.map__pin');
-    for (var i = 1; i < pinsCol.length; i++) {
-      pinsContainer.removeChild(pinsCol[i]);
-    }
-    map.querySelector('.map__pin--main').style.left = DEFAULT_X + 'px';
-    map.querySelector('.map__pin--main').style.top = DEFAULT_Y + 'px';
-    window.updateUserLocation();
-  });
+  resetButton.addEventListener('click', deactivateSite);
 })();
