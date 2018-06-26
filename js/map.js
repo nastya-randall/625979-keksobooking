@@ -1,85 +1,118 @@
 'use strict';
 
-var ADS_NUMBER = 8;
-var MIN_Y = 130;
-var MAX_Y = 630;
-var PIN_WIDTH = 50;
-var PIN_HEIGHT = 70;
-var USER_PIN_WIDTH = 65;
-var USER_PIN_HEIGHT = 81;
-
-var map = document.querySelector('.map');
-
-var pinsContainer = document.querySelector('.map__pins');
-var filters = document.querySelector('.map__filters-container');
-var pinTemplate = document.querySelector('template')
-    .content
-    .querySelector('.map__pin');
-
-
-var userPin = map.querySelector('.map__pin--main');
-var adForm = document.querySelector('.ad-form');
-var adFieldsets = adForm.querySelectorAll('fieldset');
-var mapFilters = map.querySelectorAll('[id^="housing-"]');
-
-
-var openPopup = function (item) {
-  var popup = map.querySelector('.popup');
-  if (popup !== null) {
-    map.removeChild(popup);
-  }
-  insertCards(item);
-  map.querySelector('.popup__close').addEventListener('click', function () {
-    map.removeChild(map.querySelector('.popup'));
-  });
-};
-
-// создание метки
-
-var renderPin = function (item) {
-  var pinElement = pinTemplate.cloneNode(true);
-  pinElement.style.left = item.location.x - Math.floor(PIN_WIDTH / 2) + 'px';
-  pinElement.style.top = item.location.y - PIN_HEIGHT + 'px';
-  pinElement.querySelector('img').src = item.author.avatar;
-  pinElement.querySelector('img').alt = item.offer.title;
-  pinElement.addEventListener('click', function () {
-    openPopup(item);
-  });
-  return pinElement;
-};
-
-// вставка меток на страницу
-
-var insertPins = function () {
-  var fragment = document.createDocumentFragment();
-  for (var i = 0; i < ADS_NUMBER; i++) {
-    fragment.appendChild(renderPin(window.ads[i]));
-  }
-  pinsContainer.appendChild(fragment);
-};
-
-// вставка карточки на страницу
-
-var insertCards = function (item) {
-  map.insertBefore(window.renderCard(item), filters);
-};
-
-// функция ввода страницы в активное состояние
-
-var activateSite = function () {
-  map.classList.remove('map--faded');
-  window.utils.disable(false, mapFilters);
-  window.utils.disable(false, adFieldsets);
-  adForm.classList.remove('ad-form--disabled');
-  insertPins();
-  window.updateUserLocation();
-};
-
-userPin.addEventListener('mouseup', activateSite);
-
-// DRAGGING THE USER PIN
-
 (function () {
+
+  var MIN_Y = 130;
+  var MAX_Y = 630;
+  var PIN_WIDTH = 50;
+  var PIN_HEIGHT = 70;
+  var USER_PIN_WIDTH = 65;
+  var USER_PIN_HEIGHT = 81;
+
+  var map = document.querySelector('.map');
+
+  var pinsContainer = document.querySelector('.map__pins');
+  var filters = document.querySelector('.map__filters-container');
+  var pinTemplate = document.querySelector('template')
+      .content
+      .querySelector('.map__pin');
+
+
+  var userPin = map.querySelector('.map__pin--main');
+  var adForm = document.querySelector('.ad-form');
+  var adFieldsets = adForm.querySelectorAll('fieldset');
+  var mapFilters = map.querySelectorAll('[id^="housing-"]');
+
+  var closePopup = function () {
+    var popup = map.querySelector('.popup');
+    if (popup !== null) {
+      map.removeChild(popup);
+    }
+  };
+
+  var onPopupEscPress = function (evt) {
+    window.utils.isEscEvent(evt, closePopup);
+  };
+
+  var openPopup = function (item) {
+    var popup = map.querySelector('.popup');
+    if (popup !== null) {
+      map.removeChild(popup);
+    }
+    insertCards(item);
+    map.querySelector('.popup__close').addEventListener('click', closePopup);
+    document.addEventListener('keydown', onPopupEscPress);
+
+  };
+
+  // создание метки
+
+  var renderPin = function (item) {
+    var pinElement = pinTemplate.cloneNode(true);
+    pinElement.style.left = item.location.x - Math.floor(PIN_WIDTH / 2) + 'px';
+    pinElement.style.top = item.location.y - PIN_HEIGHT + 'px';
+    pinElement.querySelector('img').src = item.author.avatar;
+    pinElement.querySelector('img').alt = item.offer.title;
+    pinElement.addEventListener('click', function () {
+      openPopup(item);
+    });
+    return pinElement;
+  };
+
+  var onLoad = function (ads) {
+    insertPins(ads);
+  };
+
+  var onError = function (errorMessage) {
+    var node = document.createElement('div');
+    node.style.zIndex = 100;
+    node.style.color = '#ff6d51';
+    node.style.position = 'absolute';
+    node.style.left = '42%';
+    node.style.top = '100px';
+    node.style.fontSize = '22px';
+
+    node.textContent = errorMessage;
+    pinsContainer.insertAdjacentElement('afterbegin', node);
+
+    setTimeout(function () {
+      pinsContainer.removeChild(node);
+    }, 5000);
+  };
+
+
+  // вставка меток на страницу
+
+  var insertPins = function (array) {
+    var fragment = document.createDocumentFragment();
+    for (var i = 0; i < array.length; i++) {
+      fragment.appendChild(renderPin(array[i]));
+    }
+    pinsContainer.appendChild(fragment);
+  };
+
+  // вставка карточки на страницу
+
+  var insertCards = function (item) {
+    map.insertBefore(window.renderCard(item), filters);
+  };
+
+
+  // функция ввода страницы в активное состояние
+
+  var activateSite = function () {
+    map.classList.remove('map--faded');
+    window.utils.disable(false, mapFilters);
+    window.utils.disable(false, adFieldsets);
+    adForm.classList.remove('ad-form--disabled');
+    window.backend.load(onLoad, onError);
+    window.updateUserLocation();
+  };
+
+  userPin.addEventListener('mouseup', activateSite);
+
+  // DRAGGING THE USER PIN
+
   var mainPin = map.querySelector('.map__pin--main');
 
   mainPin.addEventListener('mousedown', function (evt) {
