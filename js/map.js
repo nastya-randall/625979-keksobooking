@@ -8,11 +8,12 @@
   var PIN_HEIGHT = 70;
   var USER_PIN_WIDTH = 65;
   var USER_PIN_HEIGHT = 81;
+  var ads = [];
 
   var map = document.querySelector('.map');
 
   var pinsContainer = document.querySelector('.map__pins');
-  var filters = document.querySelector('.map__filters-container');
+  var filtersContainer = document.querySelector('.map__filters-container');
   var pinTemplate = document.querySelector('template')
       .content
       .querySelector('.map__pin');
@@ -21,7 +22,7 @@
   var userPin = map.querySelector('.map__pin--main');
   var adForm = document.querySelector('.ad-form');
   var adFieldsets = adForm.querySelectorAll('fieldset');
-  var mapFilters = map.querySelectorAll('[id^="housing-"]');
+  var filters = map.querySelectorAll('[id^="housing-"]');
 
   var closePopup = function () {
     var popup = map.querySelector('.popup');
@@ -34,11 +35,15 @@
     window.utils.isEscEvent(evt, closePopup);
   };
 
-  var openPopup = function (item) {
+  var isPopup = function () {
     var popup = map.querySelector('.popup');
     if (popup !== null) {
       map.removeChild(popup);
     }
+  };
+
+  var openPopup = function (item) {
+    isPopup();
     insertCards(item);
     map.querySelector('.popup__close').addEventListener('click', closePopup);
     document.addEventListener('keydown', onPopupEscPress);
@@ -59,7 +64,8 @@
     return pinElement;
   };
 
-  var onLoad = function (ads) {
+  var onLoad = function (data) {
+    ads = data;
     insertPins(ads);
   };
 
@@ -94,7 +100,7 @@
   // вставка карточки на страницу
 
   var insertCards = function (item) {
-    map.insertBefore(window.renderCard(item), filters);
+    map.insertBefore(window.renderCard(item), filtersContainer);
   };
 
 
@@ -102,7 +108,7 @@
 
   var activateSite = function () {
     map.classList.remove('map--faded');
-    window.utils.disable(false, mapFilters);
+    window.utils.disable(false, filters);
     window.utils.disable(false, adFieldsets);
     adForm.classList.remove('ad-form--disabled');
     window.backend.load(onLoad, onError);
@@ -123,10 +129,6 @@
       y: evt.clientY
     };
 
-    var clamp = function (num, min, max) {
-      return Math.min(Math.max(num, min), max);
-    };
-
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
 
@@ -140,8 +142,8 @@
         y: moveEvt.clientY
       };
 
-      mainPin.style.top = clamp(mainPin.offsetTop - shift.y, MIN_Y - USER_PIN_HEIGHT, MAX_Y) + 'px';
-      mainPin.style.left = clamp(mainPin.offsetLeft - shift.x, 0, map.offsetWidth - USER_PIN_WIDTH) + 'px';
+      mainPin.style.top = window.utils.clamp(mainPin.offsetTop - shift.y, MIN_Y - USER_PIN_HEIGHT, MAX_Y) + 'px';
+      mainPin.style.left = window.utils.clamp(mainPin.offsetLeft - shift.x, 0, map.offsetWidth - USER_PIN_WIDTH) + 'px';
       window.updateUserLocation();
 
     };
@@ -157,5 +159,43 @@
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   });
+
+  // удаление меток
+
+  var removePins = function () {
+    var pinsCol = map.querySelectorAll('.map__pin');
+    for (var i = 1; i < pinsCol.length; i++) {
+      pinsContainer.removeChild(pinsCol[i]);
+    }
+  };
+
+  // обновление меток
+
+  var updatePins = function () {
+    var checkFeatures = function () {
+      var selectedFeatures = map.querySelectorAll('input:checked');
+      for (var i = 0; i < selectedFeatures.length; i++) {
+        similarAds = similarAds.filter(function (ad) {
+          return ad.offer.features.includes(selectedFeatures[i].value);
+        });
+      }
+      return similarAds;
+    };
+
+    var similarAds = ads.filter(function (it) {
+      return window.filters.checkType(it) && window.filters.checkPrice(it) && window.filters.checkRooms(it) && window.filters.checkGuests(it);
+    });
+    checkFeatures();
+
+    removePins();
+    isPopup();
+    insertPins(similarAds);
+  };
+
+  var onFiltersChange = window.utils.debounce(updatePins);
+
+  for (var i = 0; i < filters.length; i++) {
+    filters[i].addEventListener('change', onFiltersChange);
+  }
 
 })();
