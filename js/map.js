@@ -9,6 +9,7 @@
   var USER_PIN_WIDTH = 65;
   var USER_PIN_HEIGHT = 81;
   var INITIAL_PIN_COUNT = 5;
+  var ERROR_TIMEOUT_INTERVAL = 5000;
   var ads = [];
 
   var map = document.querySelector('.map');
@@ -26,6 +27,8 @@
   var filters = map.querySelectorAll('[id^="housing-"]');
 
   var closePopup = function () {
+    var currentPin = map.querySelector('.map__pin--active');
+    currentPin.classList.remove('map__pin--active');
     var popup = map.querySelector('.popup');
     if (popup !== null) {
       map.removeChild(popup);
@@ -61,6 +64,7 @@
     pinElement.querySelector('img').alt = item.offer.title;
     pinElement.addEventListener('click', function () {
       openPopup(item);
+      pinElement.classList.add('map__pin--active');
     });
     return pinElement;
   };
@@ -84,7 +88,7 @@
 
     setTimeout(function () {
       pinsContainer.removeChild(node);
-    }, 5000);
+    }, ERROR_TIMEOUT_INTERVAL);
   };
 
 
