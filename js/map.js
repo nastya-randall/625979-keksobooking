@@ -8,6 +8,7 @@
   var PIN_HEIGHT = 70;
   var USER_PIN_WIDTH = 65;
   var USER_PIN_HEIGHT = 81;
+  var INITIAL_PIN_COUNT = 5;
   var ads = [];
 
   var map = document.querySelector('.map');
@@ -90,8 +91,9 @@
   // вставка меток на страницу
 
   var insertPins = function (array) {
+    var arrayLength = Math.min(array.length, INITIAL_PIN_COUNT);
     var fragment = document.createDocumentFragment();
-    for (var i = 0; i < array.length; i++) {
+    for (var i = 0; i < arrayLength; i++) {
       fragment.appendChild(renderPin(array[i]));
     }
     pinsContainer.appendChild(fragment);

@@ -103,6 +103,7 @@
     adForm.classList.add('ad-form--disabled');
     window.utils.disable(true, mapFilters);
     window.utils.disable(true, adFieldsets);
+    window.resetPreviews();
     var pinsCol = map.querySelectorAll('.map__pin');
     for (var i = 1; i < pinsCol.length; i++) {
       pinsContainer.removeChild(pinsCol[i]);
