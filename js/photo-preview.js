@@ -42,11 +42,11 @@
       if (matches) {
         var reader = new FileReader();
 
-        reader.addEventListener('load', function () {
+        reader.addEventListener('load', function (evt) {
           var photoWrapper = document.createElement('div');
           photoWrapper.classList.add('ad-form__photo');
           var photo = document.createElement('img');
-          photo.src = reader.result;
+          photo.src = evt.target.result;
           photo.width = IMAGE_WIDTH;
           photo.height = IMAGE_HEIGHT;
           photoWrapper.appendChild(photo);
