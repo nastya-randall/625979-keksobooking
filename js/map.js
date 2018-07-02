@@ -72,6 +72,7 @@
   var onLoad = function (data) {
     ads = data;
     insertPins(ads);
+    window.utils.disable(false, filters);
   };
 
   var onError = function (errorMessage) {
@@ -114,7 +115,6 @@
 
   var activateSite = function () {
     map.classList.remove('map--faded');
-    window.utils.disable(false, filters);
     window.utils.disable(false, adFieldsets);
     adForm.classList.remove('ad-form--disabled');
     window.backend.load(onLoad, onError);
