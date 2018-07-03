@@ -7,23 +7,35 @@
   var avatarChooser = document.querySelector('#avatar');
   var avatarPreview = document.querySelector('.ad-form-header__preview').querySelector('img');
 
+  var checkFileFormat = function (fileName, formats) {
+    return formats.some(function (it) {
+      return fileName.endsWith(it);
+    });
+  };
+
+  var showPreview = function (el, file) {
+    var reader = new FileReader();
+
+    reader.addEventListener('load', function (evt) {
+      el.src = evt.target.result;
+    });
+
+    reader.readAsDataURL(file);
+  };
+
   avatarChooser.addEventListener('change', function () {
+    if (avatarChooser.files.length <= 0) {
+      return;
+    }
+
     var file = avatarChooser.files[0];
     var fileName = file.name.toLowerCase();
 
-    var matches = FILE_TYPES.some(function (it) {
-      return fileName.endsWith(it);
-    });
-
-    if (matches) {
-      var reader = new FileReader();
-
-      reader.addEventListener('load', function () {
-        avatarPreview.src = reader.result;
-      });
-
-      reader.readAsDataURL(file);
+    if (!checkFileFormat(fileName, FILE_TYPES)) {
+      return;
     }
+
+    showPreview(avatarPreview, file);
   });
 
   var photosChooser = document.querySelector('#images');
@@ -35,26 +47,19 @@
       var file = photosChooser.files[i];
       var fileName = file.name.toLowerCase();
 
-      var matches = FILE_TYPES.some(function (it) {
-        return fileName.endsWith(it);
-      });
-
-      if (matches) {
-        var reader = new FileReader();
-
-        reader.addEventListener('load', function (evt) {
-          var photoWrapper = document.createElement('div');
-          photoWrapper.classList.add('ad-form__photo');
-          var photo = document.createElement('img');
-          photo.src = evt.target.result;
-          photo.width = IMAGE_WIDTH;
-          photo.height = IMAGE_HEIGHT;
-          photoWrapper.appendChild(photo);
-          photosContainer.insertBefore(photoWrapper, photosPreview);
-        });
-
-        reader.readAsDataURL(file);
+      if (!checkFileFormat(fileName, FILE_TYPES)) {
+        continue;
       }
+
+      var photoWrapper = document.createElement('div');
+      photoWrapper.classList.add('ad-form__photo');
+      var photo = document.createElement('img');
+      photo.width = IMAGE_WIDTH;
+      photo.height = IMAGE_HEIGHT;
+      photoWrapper.appendChild(photo);
+      photosContainer.insertBefore(photoWrapper, photosPreview);
+
+      showPreview(photo, file);
     }
   });
 

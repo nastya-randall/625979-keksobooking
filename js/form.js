@@ -8,7 +8,6 @@
   var adForm = document.querySelector('.ad-form');
   var adFieldsets = adForm.querySelectorAll('fieldset');
   var pinsContainer = document.querySelector('.map__pins');
-
   var mapFilters = map.querySelectorAll('[id^="housing-"]');
   var successPopup = document.querySelector('.success');
 
@@ -79,23 +78,19 @@
     }
   };
 
-  var onSelectRoomChange = function () {
-    selectRoom.addEventListener('change', function (evt) {
-      if (evt.target.selectedIndex === 3) {
-        disableOptions(3);
-        enableOptions(3, 3);
-      }
+  selectRoom.addEventListener('change', function (evt) {
+    if (evt.target.selectedIndex === 3) {
+      disableOptions(3);
+      enableOptions(3, 3);
+    }
 
-      for (var i = 0; i < selectRoom.children.length - 1; i++) {
-        if (evt.target.selectedIndex === i) {
-          disableOptions(i);
-          enableOptions(0, i);
-        }
+    for (var i = 0; i < selectRoom.children.length - 1; i++) {
+      if (evt.target.selectedIndex === i) {
+        disableOptions(i);
+        enableOptions(0, i);
       }
-    });
-  };
-
-  onSelectRoomChange();
+    }
+  });
 
   var deactivateSite = function () {
     map.classList.add('map--faded');
@@ -155,7 +150,7 @@
   // проверка на валидность полей ввода
 
   var isInvalid = function (input) {
-    if (input.checkValidity() === false) {
+    if (!input.checkValidity()) {
       input.style.boxShadow = '0 0 2px 2px #ff6547';
     }
   };
@@ -175,7 +170,6 @@
   onInputBlur(adForm.querySelector('#price'));
 
   // reset the page //
-
 
   var resetButton = adForm.querySelector('.ad-form__reset');
   resetButton.addEventListener('click', deactivateSite);
