@@ -59,36 +59,26 @@
 
   onTimeChange();
 
-  // Количество комнат и гстей
+  // Количество комнат и гoстей
 
-  var selectRoom = adForm.querySelector('#room_number');
-  var selectCapacity = adForm.querySelector('#capacity');
-
-  var disableOptions = function (index) {
-    for (var i = 0; i < selectCapacity.children.length; i++) {
-      selectCapacity.children[i].disabled = true;
-    }
-
-    selectCapacity.selectedIndex = index;
+  var roomsCapacityMap = {
+    '1': ['1'],
+    '2': ['1', '2'],
+    '3': ['1', '2', '3'],
+    '100': ['0']
   };
 
-  var enableOptions = function (min, max) {
-    for (var i = min; i <= max; i++) {
-      selectCapacity.children[i].disabled = false;
-    }
-  };
+  var capacitySelect = adForm.querySelector('#capacity');
+  var roomSelect = adForm.querySelector('#room_number');
 
-  selectRoom.addEventListener('change', function (evt) {
-    if (evt.target.selectedIndex === 3) {
-      disableOptions(3);
-      enableOptions(3, 3);
+  roomSelect.addEventListener('change', function (evt) {
+    var options = capacitySelect.querySelectorAll('option');
+    for (var i = 0; i < options.length; i++) {
+      options[i].disabled = !roomsCapacityMap[evt.target.value].includes(options[i].value);
     }
 
-    for (var i = 0; i < selectRoom.children.length - 1; i++) {
-      if (evt.target.selectedIndex === i) {
-        disableOptions(i);
-        enableOptions(0, i);
-      }
+    if (capacitySelect.options[capacitySelect.selectedIndex].disabled) {
+      capacitySelect.value = roomsCapacityMap[evt.target.value][0];
     }
   });
 
