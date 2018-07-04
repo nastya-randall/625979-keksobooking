@@ -8,6 +8,8 @@
   var PIN_HEIGHT = 70;
   var USER_PIN_WIDTH = 65;
   var USER_PIN_HEIGHT = 81;
+  var INITIAL_PIN_COUNT = 5;
+  var ERROR_TIMEOUT_INTERVAL = 5000;
   var ads = [];
 
   var map = document.querySelector('.map');
@@ -25,6 +27,8 @@
   var filters = map.querySelectorAll('[id^="housing-"]');
 
   var closePopup = function () {
+    var currentPin = map.querySelector('.map__pin--active');
+    currentPin.classList.remove('map__pin--active');
     var popup = map.querySelector('.popup');
     if (popup !== null) {
       map.removeChild(popup);
@@ -60,6 +64,7 @@
     pinElement.querySelector('img').alt = item.offer.title;
     pinElement.addEventListener('click', function () {
       openPopup(item);
+      pinElement.classList.add('map__pin--active');
     });
     return pinElement;
   };
@@ -67,6 +72,7 @@
   var onLoad = function (data) {
     ads = data;
     insertPins(ads);
+    window.utils.disable(false, filters);
   };
 
   var onError = function (errorMessage) {
@@ -83,15 +89,16 @@
 
     setTimeout(function () {
       pinsContainer.removeChild(node);
-    }, 5000);
+    }, ERROR_TIMEOUT_INTERVAL);
   };
 
 
   // вставка меток на страницу
 
   var insertPins = function (array) {
+    var arrayLength = Math.min(array.length, INITIAL_PIN_COUNT);
     var fragment = document.createDocumentFragment();
-    for (var i = 0; i < array.length; i++) {
+    for (var i = 0; i < arrayLength; i++) {
       fragment.appendChild(renderPin(array[i]));
     }
     pinsContainer.appendChild(fragment);
@@ -108,7 +115,6 @@
 
   var activateSite = function () {
     map.classList.remove('map--faded');
-    window.utils.disable(false, filters);
     window.utils.disable(false, adFieldsets);
     adForm.classList.remove('ad-form--disabled');
     window.backend.load(onLoad, onError);

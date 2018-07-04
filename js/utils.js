@@ -7,9 +7,9 @@
   var DEBOUNCE_INTERVAL = 500; // ms
 
   window.utils = {
-    disable: function (value, form) {
-      for (var i = 0; i < form.length; i++) {
-        form[i].disabled = value;
+    disable: function (value, elements) {
+      for (var i = 0; i < elements.length; i++) {
+        elements[i].disabled = value;
       }
     },
 

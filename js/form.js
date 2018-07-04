@@ -8,7 +8,6 @@
   var adForm = document.querySelector('.ad-form');
   var adFieldsets = adForm.querySelectorAll('fieldset');
   var pinsContainer = document.querySelector('.map__pins');
-
   var mapFilters = map.querySelectorAll('[id^="housing-"]');
   var successPopup = document.querySelector('.success');
 
@@ -60,42 +59,28 @@
 
   onTimeChange();
 
-  // Количество комнат и гстей
+  // Количество комнат и гoстей
 
-  var selectRoom = adForm.querySelector('#room_number');
-  var selectCapacity = adForm.querySelector('#capacity');
+  var roomsCapacityMap = {
+    '1': ['1'],
+    '2': ['1', '2'],
+    '3': ['1', '2', '3'],
+    '100': ['0']
+  };
 
-  var disableOptions = function (index) {
-    for (var i = 0; i < selectCapacity.children.length; i++) {
-      selectCapacity.children[i].disabled = true;
+  var capacitySelect = adForm.querySelector('#capacity');
+  var roomSelect = adForm.querySelector('#room_number');
+
+  roomSelect.addEventListener('change', function (evt) {
+    var options = capacitySelect.querySelectorAll('option');
+    for (var i = 0; i < options.length; i++) {
+      options[i].disabled = !roomsCapacityMap[evt.target.value].includes(options[i].value);
     }
 
-    selectCapacity.selectedIndex = index;
-  };
-
-  var enableOptions = function (min, max) {
-    for (var i = min; i <= max; i++) {
-      selectCapacity.children[i].disabled = false;
+    if (capacitySelect.options[capacitySelect.selectedIndex].disabled) {
+      capacitySelect.value = roomsCapacityMap[evt.target.value][0];
     }
-  };
-
-  var onSelectRoomChange = function () {
-    selectRoom.addEventListener('change', function (evt) {
-      if (evt.target.selectedIndex === 3) {
-        disableOptions(3);
-        enableOptions(3, 3);
-      }
-
-      for (var i = 0; i < selectRoom.children.length - 1; i++) {
-        if (evt.target.selectedIndex === i) {
-          disableOptions(i);
-          enableOptions(0, i);
-        }
-      }
-    });
-  };
-
-  onSelectRoomChange();
+  });
 
   var deactivateSite = function () {
     map.classList.add('map--faded');
@@ -103,6 +88,7 @@
     adForm.classList.add('ad-form--disabled');
     window.utils.disable(true, mapFilters);
     window.utils.disable(true, adFieldsets);
+    window.resetPreviews();
     var pinsCol = map.querySelectorAll('.map__pin');
     for (var i = 1; i < pinsCol.length; i++) {
       pinsContainer.removeChild(pinsCol[i]);
@@ -154,7 +140,7 @@
   // проверка на валидность полей ввода
 
   var isInvalid = function (input) {
-    if (input.checkValidity() === false) {
+    if (!input.checkValidity()) {
       input.style.boxShadow = '0 0 2px 2px #ff6547';
     }
   };
@@ -174,7 +160,6 @@
   onInputBlur(adForm.querySelector('#price'));
 
   // reset the page //
-
 
   var resetButton = adForm.querySelector('.ad-form__reset');
   resetButton.addEventListener('click', deactivateSite);
